@@ -1,5 +1,5 @@
-# public 鏡像用: ブロックを直列実行（normal）
-name: BIT pdf transcribe gemini 3
+# public 鏡像用: ブロックを直列実行（err-retry）
+name: BIT pdf transcribe gemini 3 err-retry
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ env:
   PRIVATE_REF: main
 
 jobs:
-  transcribe-03_kanto:
+  transcribe-03_kanto-err-retry:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -65,20 +65,20 @@ jobs:
           printf '%s' "$GOOGLE_DRIVE_TOKEN" > secrets/google_drive_token.json
           printf '%s' "$ENV_FILE" > .env
 
-      - name: Transcribe PDFs (03_kanto)
+      - name: Transcribe PDFs (03_kanto-err-retry)
         id: transcribe
         continue-on-error: true
         working-directory: app
         run: |
           set -euo pipefail
-          echo "Run: python pdf_transcribe_gemini.py --block 03_kanto --api-key 13-18 --pdf-source drive --limit 100 --gemini-wait 4 --pages-per-call 4"
+          echo "Run: python pdf_transcribe_gemini.py --block 03_kanto --api-key 13-18 --pdf-source drive --limit 100 --gemini-wait 4 --pages-per-call 4 --err-retry"
           python pdf_transcribe_gemini.py \
             --block 03_kanto \
             --api-key 13-18 \
             --pdf-source drive \
             --limit 100 \
             --gemini-wait 4 \
-            --pages-per-call 4
+            --pages-per-call 4 --err-retry
 
       - name: Commit transcript JSON (03_kanto)
         id: commit
@@ -93,7 +93,7 @@ jobs:
             echo "committed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "chore(ci): update 03_kanto PDF transcripts (Gemini) [skip ci]"
+          git commit -m "chore(ci): err-retry 03_kanto PDF transcripts (Gemini) [skip ci]"
           echo "committed=true" >> "$GITHUB_OUTPUT"
 
       - name: Push to private with rebase
@@ -126,8 +126,8 @@ jobs:
           echo "::error::Transcribe step failed. Partial transcripts may have been committed and pushed."
           exit 1
 
-  transcribe-07_chugoku:
-    needs: transcribe-03_kanto
+  transcribe-07_chugoku-err-retry:
+    needs: transcribe-03_kanto-err-retry
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -176,20 +176,20 @@ jobs:
           printf '%s' "$GOOGLE_DRIVE_TOKEN" > secrets/google_drive_token.json
           printf '%s' "$ENV_FILE" > .env
 
-      - name: Transcribe PDFs (07_chugoku)
+      - name: Transcribe PDFs (07_chugoku-err-retry)
         id: transcribe
         continue-on-error: true
         working-directory: app
         run: |
           set -euo pipefail
-          echo "Run: python pdf_transcribe_gemini.py --block 07_chugoku --api-key 13-18 --pdf-source drive --limit 100 --gemini-wait 4 --pages-per-call 4"
+          echo "Run: python pdf_transcribe_gemini.py --block 07_chugoku --api-key 13-18 --pdf-source drive --limit 100 --gemini-wait 4 --pages-per-call 4 --err-retry"
           python pdf_transcribe_gemini.py \
             --block 07_chugoku \
             --api-key 13-18 \
             --pdf-source drive \
             --limit 100 \
             --gemini-wait 4 \
-            --pages-per-call 4
+            --pages-per-call 4 --err-retry
 
       - name: Commit transcript JSON (07_chugoku)
         id: commit
@@ -204,7 +204,7 @@ jobs:
             echo "committed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "chore(ci): update 07_chugoku PDF transcripts (Gemini) [skip ci]"
+          git commit -m "chore(ci): err-retry 07_chugoku PDF transcripts (Gemini) [skip ci]"
           echo "committed=true" >> "$GITHUB_OUTPUT"
 
       - name: Push to private with rebase
